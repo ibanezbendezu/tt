@@ -1,0 +1,24 @@
+.cytoscape-navigator {
+    border: 0 solid #41413e !important;
+    background: #525252 !important;
+    height: 20vh !important;
+    width: 15vw !important;
+    margin-bottom: 24px;
+    margin-right: 24px;
+    border-radius: 5px;
+}
+
+.cytoscape-navigator .cytoscape-navigatorView {
+    border: 0 solid #343432;
+    background: transparent;
+}
+
+.cytoscape-navigator:hover .cytoscape-navigatorOverlay {
+    border: 2px solid #1a1a19;
+    border-radius: 5px;
+    background: transparent;
+}
+
+.cytoscape-navigator.mouseover-view .cytoscape-navigatorView {
+    background-color: rgb(14, 14, 14);
+}
