@@ -150,8 +150,8 @@ export const Navigation = () => {
                     <nav className="bg-transparent px-3 py-3 w-full">
                         {isCollapsed && (
                             <MenuIcon
-                                onClick={resetWidth}
                                 role="button"
+                                onClick={resetWidth}
                                 className="h-6 w-6 text-muted-foreground"
                             />
                         )}

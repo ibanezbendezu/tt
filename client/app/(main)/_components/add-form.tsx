@@ -49,7 +49,6 @@ export default function AddForm({
 
     const onSubmit = async (values: z.infer<typeof formSchema>) => {
         try {
-            console.log(values);
             const username = profile.username;
             const cluster = store.find(cluster => cluster.id === values.grupo);
             const prevRepos = cluster.repositories;
@@ -63,7 +62,7 @@ export default function AddForm({
             updateClusterInStore({id: values.grupo, updatedCluster: data.data});
             emptyCart();
             setIsOpen(false);
-            router.push(`/clusters/${data.data.id}`);
+            router.push(`/clusters/${data.data.sha}`);
         } catch (error) {
             console.log(error);
         }

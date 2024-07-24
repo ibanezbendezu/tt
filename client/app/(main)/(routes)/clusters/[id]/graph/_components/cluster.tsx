@@ -34,9 +34,6 @@ type ClusterProps = {
 };
 
 export const Cluster: React.FC<ClusterProps> = ({data, clusterId}) => {
-    console.log("data", data);
-    console.log("clusterId", clusterId);
-
     const [isFileOpen, setIsFileOpen] = useState(false);
     const [isPairOpen, setIsPairOpen] = useState(false);
     const [file, setFile] = useState<any>(null);

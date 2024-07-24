@@ -190,6 +190,7 @@ export class ClustersService {
 
         const result = {
             id: cf.id,
+            sha: cf.sha,
             date: cf.clusterDate,
             numberOfRepos: 0,
             numberOfFolders: 0,
@@ -409,6 +410,7 @@ export class ClustersService {
 
         const result = {
             id: cf.id,
+            sha: cf.sha,
             date: cf.clusterDate,
             numberOfRepos: 0,
             numberOfFolders: 0,
@@ -484,7 +486,8 @@ export class ClustersService {
         }));
 
         const concatenatedShas = repositories.map(repo => repo.sha).join('');
-        const clusterSha = createHash('sha256').update(concatenatedShas).digest('hex');
+        const currentTime = new Date().toISOString();
+        const clusterSha = createHash('sha256').update(concatenatedShas + currentTime).digest('hex');
 
 
         let cluster = await this.prisma.cluster.create({

@@ -26,24 +26,17 @@ export const ClusterList = () => {
 
     return (
         <>
-            {clusters
-                .map(cluster => ({
-                    ...cluster,
-                    clusterDate: new Date(cluster.clusterDate)
-                }))
-                .sort((a, b) => a.clusterDate - b.clusterDate)
-                .map((cluster) => (
-                    <div key={cluster.id}>
-                        <Item
-                            onClick={() => onRedirect(cluster.sha)}
-                            isCluster={cluster.numberOfRepos}
-                            label={formatDateTime(cluster.clusterDate)}
-                            icon={Boxes}
-                            active={params.id == cluster.sha}
-                        />
-                    </div>
-                ))
-            }
+            {clusters.map((cluster) => (
+                <div key={cluster.id}>
+                    <Item
+                        onClick={() => onRedirect(cluster.sha)}
+                        isCluster={cluster.numberOfRepos}
+                        label={formatDateTime(cluster.clusterDate)}
+                        icon={Boxes}
+                        active={params.id == cluster.sha}
+                    />
+                </div>
+            ))}
         </>
     );
 };

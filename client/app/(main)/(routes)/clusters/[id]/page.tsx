@@ -52,7 +52,6 @@ export default function ClusterPage({params}: { params: any }) {
             const cRes = await pairSimilaritiesByClusterShaRequest(params.id);
             const cData = cRes.data;
             setChartData(processSimilarityData(cData));
-            console.log(processSimilarityData(cData))
 
             setLoading(false);
         };

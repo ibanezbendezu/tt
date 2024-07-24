@@ -24,7 +24,7 @@ export const Navbar = ({isCollapsed, onResetWidth}: NavbarProps) => {
                     />
                 )}
                 {!pathname.includes("users") && (
-                    <div className="flex items-center justify-between w-full">
+                    <div className="pl-2">
                         <Breadcrumbs/>
                     </div>
                 )}
