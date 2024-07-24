@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-
 import {
     Dialog,
     DialogContent,
@@ -10,26 +9,22 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 
-export function AddDialog({
-                              children,
-                              isOpen,
-                              setIsOpen,
-                              title,
-                              description,
-                          }: {
+interface AddDialogProps {
     children: React.ReactNode;
     isOpen: boolean;
     setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
     title: string;
     description?: string;
-}) {
+}
+
+export function AddDialog({children, isOpen, setIsOpen, title, description}: AddDialogProps) {
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                     <DialogTitle>{title}</DialogTitle>
                     {description && (
-                        <DialogDescription>{description}</DialogDescription>
+                        <DialogDescription className='pt-2'>{description}</DialogDescription>
                     )}
                 </DialogHeader>
                 {children}

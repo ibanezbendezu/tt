@@ -92,8 +92,9 @@ export const Cart = () => {
                 isOpen={isAddOpen}
                 setIsOpen={setIsAddOpen}
                 title="Agregar Repositorios"
+                description="Puedes añadir los proyectos seleccionados a una comparación que hayas creado anteriormente."
             >
-                <AddForm setIsOpen={setIsAddOpen}/>
+                <AddForm setIsOpen={setIsAddOpen} cartCollapse={collapse}/>
             </AddDialog>
 
             <aside

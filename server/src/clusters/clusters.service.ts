@@ -587,7 +587,6 @@ export class ClustersService {
         let cluster = await this.prisma.cluster.update({
             where: { sha: sha },
             data: {
-                clusterDate: new Date(),
                 numberOfRepos: repositories.length
             }
         });
