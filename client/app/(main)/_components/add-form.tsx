@@ -22,6 +22,7 @@ import {useAuthStore} from '@/store/auth';
 import useCart from '@/store/repos';
 import {clusterUpdateRequestBySha} from '@/api/server-data';
 import {formatDateTime} from '@/lib/utils';
+import { CustomAlert } from './custom-alert';
 
 const formSchema = z.object({
     grupo: z.number(),
@@ -37,10 +38,12 @@ export default function AddForm({setIsOpen, cartCollapse}: AddFormProps) {
     const {profile} = useAuthStore(state => state);
     const {cart, emptyCart} = useCart(state => state);
     const {store, updateClusterInStore} = useStore(state => state);
-    const clusters = useStore(state => state.store);
-    const selectedRepos = useCart(state => state.cart);
 
     const [showAlert, setShowAlert] = useState(false);
+    const [alertType, setAlertType] = useState(0);
+    const [reposToAdd, setReposToAdd] = useState<any[]>([]);
+    const [clusterSha, setClusterSha] = useState('');
+    const [isBUttonDisabled, setIsButtonDisabled] = useState(true);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -51,23 +54,56 @@ export default function AddForm({setIsOpen, cartCollapse}: AddFormProps) {
 
     const isLoading = form.formState.isSubmitting;
 
-    const onSubmit = async (values: z.infer<typeof formSchema>) => {
-        if (values.grupo === 0) {
+    const onValidate = (values: z.infer<typeof formSchema>) => {
+        const cluster = store.find(cluster => cluster.id === values.grupo);
+        setClusterSha(cluster.sha);
+        
+        const prevRepos = cluster.repositories;
+        const newRepos = cart.map(repo => ({
+            name: repo.name,
+            owner: repo.owner.login,
+        }));
+
+        const existingRepos = newRepos.filter(newRepo =>
+            prevRepos.some((prevRepo: { name: any; owner: any; }) => 
+                prevRepo.name === newRepo.name && prevRepo.owner === newRepo.owner
+            )
+        );
+
+        const reposToAdd = newRepos.filter(newRepo =>
+            !prevRepos.some((prevRepo: { name: any; owner: any; }) => 
+                prevRepo.name === newRepo.name && prevRepo.owner === newRepo.owner
+            )
+        );
+
+        if (existingRepos.length === newRepos.length) {
+            setAlertType(2);
+            setShowAlert(true);
+            setIsButtonDisabled(false);
+            return;
+        } else if (existingRepos.length > 0) {
+            setReposToAdd(reposToAdd);
+            setAlertType(3);
+            setShowAlert(true);
+            return;
+        } else {
+            setReposToAdd(reposToAdd);
+            setAlertType(4);
             setShowAlert(true);
             return;
         }
+    }
 
+    const onSubmit = async (values: z.infer<typeof formSchema>) => {
+        if (values.grupo === 0) {
+            setShowAlert(true);
+            setAlertType(1);
+            return;
+        }
+        
         try {
             const username = profile.username;
-            const cluster = store.find(cluster => cluster.id === values.grupo);
-            const prevRepos = cluster.repositories;
-            const newRepos = cart.map(repo => ({
-                name: repo.name,
-                owner: repo.owner.login,
-            }));
-            const repos = [...prevRepos, ...newRepos];
-
-            const data = await clusterUpdateRequestBySha(cluster.sha, repos, username);
+            const data = await clusterUpdateRequestBySha(clusterSha, reposToAdd, username);
             updateClusterInStore({id: values.grupo, updatedCluster: data.data});
             emptyCart();
             setIsOpen(false);
@@ -90,9 +126,7 @@ export default function AddForm({setIsOpen, cartCollapse}: AddFormProps) {
                 className="flex flex-col space-y-4 sm:px-0 px-4"
             >
                 {showAlert && (
-                    <div className="text-red-700 font-mono text-sm px-2 py-1" role="alert">
-                        Por favor, selecciona un grupo antes de confirmar.
-                    </div>
+                    <CustomAlert option={alertType}/>
                 )}
                 <FormField
                     control={form.control}
@@ -107,7 +141,8 @@ export default function AddForm({setIsOpen, cartCollapse}: AddFormProps) {
                                 value={options.find((option) => option.value === value)}
                                 onChange={(option) => {
                                     onChange(option?.value);
-                                    setShowAlert(false); // Hide alert on select
+                                    setShowAlert(false);
+                                    onValidate({grupo: option?.value});
                                 }}
                             />
                             <FormDescription>
@@ -121,7 +156,7 @@ export default function AddForm({setIsOpen, cartCollapse}: AddFormProps) {
                 <div className="flex w-full sm:justify-end mt-4">
                     <Button
                         type="submit"
-                        disabled={isLoading}
+                        disabled={isLoading || !isBUttonDisabled}
                         className="w-full sm:w-auto"
                     >
                         <>

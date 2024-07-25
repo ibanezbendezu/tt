@@ -20,7 +20,7 @@ interface AddDialogProps {
 export function AddDialog({children, isOpen, setIsOpen, title, description}: AddDialogProps) {
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="max-w-xl">
                 <DialogHeader>
                     <DialogTitle>{title}</DialogTitle>
                     {description && (
