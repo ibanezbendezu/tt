@@ -10,7 +10,7 @@ const Home = () => {
 
     return (
         <div className="m-10">
-            <div className="my-6 flex items-center justify-between">
+            <div className="py-4 flex items-center justify-start">
                 <h2 className="text-4xl font-bold">
                     <kbd className="font-mono"> {"Bienvenido, "} </kbd>
                     <kbd className="text-muted-foreground font-mono">{
@@ -18,25 +18,25 @@ const Home = () => {
                     </kbd>
                 </h2>
             </div>
-            <div className="my-4 flex items-center gap-2">
+            <div className="py-4 flex items-center gap-2">
                 <ArrowUpLeft className="h-5 w-5 text-current"/>
                 <p className="text-sm font-normal text-muted-foreground">
                     Puedes buscar repositorios haciendo click allí.
                 </p>
             </div>
-            <div className="my-2 flex items-center gap-2">
+            <div className="py-2 flex items-center gap-2">
                 <p className="text-sm font-normal text-muted-foreground">
                     O usa el comando <code className="text-primary">Ctrl+k</code> en el teclado.
                 </p>
                 <SearchCode className="h-5 w-5 text-current"/>
             </div>
-            <div className="my-16 flex items-center gap-2 justify-end">
+            <div className="py-10 flex items-center gap-2 justify-end">
                 <p className="text-sm font-normal text-muted-foreground">
                     Los repositorios seleccionados aparecerán en el carrito.
                 </p>
                 <ArrowUp className="h-5 w-5 text-current"/>
             </div>
-            <div className="my-20 h-full flex flex-col items-center justify-center space-y-4">
+            <div className="py-20 h-full flex flex-col items-center justify-center space-y-4">
                 <Heroes/>
             </div>
         </div>

@@ -129,7 +129,7 @@ export const fileGraphStyles = [
     {
         selector: "node[type = 'repository']",
         style: {
-            "background-color": "#41413e",
+            "background-color": "#343434",
             "background-opacity": 0.9,
             "border-width": "0px",
         },

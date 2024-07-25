@@ -41,7 +41,7 @@ export function FileDialog({isOpen, setIsOpen, file, graphData}: FileDialogProps
                 }
 
                 {graphData &&
-                    <div className="h-[30rem] flex flex-col dark:bg-[#1F1F1F] rounded-md">
+                    <div className="h-[30rem] flex flex-col dark:bg-secondary/10 rounded-md">
                         <File data={graphData}/>
                     </div>
                 }

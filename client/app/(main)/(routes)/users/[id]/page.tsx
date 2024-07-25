@@ -46,7 +46,7 @@ export default function UserPage({params}: { params: any }) {
     return (
         <div className='m-5'>
             <div className='p-4 flex gap-6 flex-col md:flex-row justify-center items-start'>
-                <div className='md:w-1/3 w-full px-1 md:px-0'>
+                <div className='md:w-1/3 w-full px-1 pt-2 md:px-0'>
                     <div className="flex flex-col py-2 gap-5">
                         <a href={userProfile?.html_url}>
                             <img

@@ -26,11 +26,11 @@ const Breadcrumbs = () => {
                             <div className="flex items-center">
                                 {index > 1 && <span className="mx-1 text-muted-foreground text-sm font-mono">/</span>}
                                 {isLast ? (
-                                    <span className="text-muted-foreground/30 text-sm font-mono">{label}</span>
+                                    <span className="text-muted-foreground text-sm font-mono rounded-sm bg-primary/5 px-1">{label}</span>
                                 ) : (
                                     <Link
                                         href={href}
-                                        className="text-muted-foreground font-mono text-sm hover:text-muted-foreground/70"
+                                        className="text-muted-foreground font-mono text-sm hover:text-muted-foreground/70 px-1"
                                     >
                                         {label}
                                     </Link>

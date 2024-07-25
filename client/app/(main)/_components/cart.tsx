@@ -21,6 +21,7 @@ import useStore from "@/store/clusters";
 import useCart from '@/store/repos';
 import {AddDialog} from "./add-dialog"
 import AddForm from "./add-form";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 
 export const Cart = () => {
@@ -136,10 +137,17 @@ export const Cart = () => {
 
                         <div className="flex justify-center"
                              style={{pointerEvents: (cartItems.length <= 0 || store.length <= 0) ? 'none' : 'auto'}}>
-                            <Button disabled={cartItems.length <= 0 || store.length <= 0} className="h-6 w-full"
-                                    onClick={() => setIsAddOpen(true)}>
-                                +
-                            </Button>
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button disabled={cartItems.length <= 0 || store.length <= 0} className="h-6 w-full"
+                                                onClick={() => setIsAddOpen(true)}>
+                                            +
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>Agregar a comparación</TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
                         </div>
                     </div>
 

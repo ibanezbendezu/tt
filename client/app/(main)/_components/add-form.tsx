@@ -82,14 +82,16 @@ export default function AddForm({setIsOpen, cartCollapse}: AddFormProps) {
             setIsButtonDisabled(false);
             return;
         } else if (existingRepos.length > 0) {
-            setReposToAdd(reposToAdd);
+            setReposToAdd([...reposToAdd, ...prevRepos]);
             setAlertType(3);
             setShowAlert(true);
+            setIsButtonDisabled(true);
             return;
         } else {
-            setReposToAdd(reposToAdd);
+            setReposToAdd([...reposToAdd, ...prevRepos]);
             setAlertType(4);
             setShowAlert(true);
+            setIsButtonDisabled(true);
             return;
         }
     }

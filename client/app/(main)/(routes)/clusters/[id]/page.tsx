@@ -77,7 +77,7 @@ export default function ClusterPage({params}: { params: any }) {
 
     return (
         <div className="m-10 grid grid-flow-row gap-2">
-            <div className="flex items-baseline justify-between">
+            <div className="py-4 flex items-baseline justify-between">
                 <h2 className="text-4xl font-bold font-mono">
                     <kbd> {"Resultados de comparación"} </kbd>
                 </h2>
@@ -87,7 +87,7 @@ export default function ClusterPage({params}: { params: any }) {
                 </Badge>
             </div>
 
-            <div className="my-4 flex items-center">
+            <div className="py-2 flex items-center">
                 <p className="text-sm font-normal text-muted-foreground">
                     A continuación presentamos los datos recopilados del grupo.
                 </p>
@@ -205,7 +205,7 @@ export default function ClusterPage({params}: { params: any }) {
                 </CardContent>
             </Card>
 
-            <div className="my-4 flex items-center gap-2">
+            <div className="mt-2 py-2 flex items-center gap-2">
                 <p className="text-sm font-normal text-muted-foreground">
                     Resumen de los repositorios comparados.
                 </p>

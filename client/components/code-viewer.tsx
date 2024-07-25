@@ -1,26 +1,32 @@
 "use client"
 
 import React, {useEffect, useState} from "react";
-import {Prism as SyntaxHighlighter} from "react-syntax-highlighter";
+import SyntaxHighlighter, {createElement} from "react-syntax-highlighter";
 import {cb} from "react-syntax-highlighter/dist/esm/styles/prism";
+import {stackoverflowLight} from "react-syntax-highlighter/dist/esm/styles/hljs";
+import {stackoverflowDark} from "react-syntax-highlighter/dist/esm/styles/hljs";
 import {Skeleton} from "./ui/skeleton";
+import {useTheme} from "next-themes";
 
-export const CodeViewer = ({
-                               code,
-                               highlightRange = [{start: 0, end: Infinity}],
-                               language,
-                               color = "#4d4d4d",
-                               shouldScrollY = false,
-                           }: {
+interface CodeViewerProps {
     code: string;
     highlightRange?: { start: number; end: number }[];
     columnHighlight?: { start: number; end: number };
     language?: string;
     color?: string;
     shouldScrollY?: boolean;
-}) => {
+}
+
+export const CodeViewer = ({
+        code,
+        highlightRange = [{start: 0, end: Infinity}],
+        language,
+        color = "#4d4d4d",
+        shouldScrollY = false,
+    }: CodeViewerProps) => {
 
     const [formattedCode, setFormattedCode] = useState("");
+    const { theme } = useTheme();
 
     useEffect(() => {
         setFormattedCode(code);
@@ -45,26 +51,61 @@ export const CodeViewer = ({
 
     const getLineProps = (lineNumber: number) => {
         const overlapCount = lineOverlapCount.get(lineNumber) || 0;
-        if (overlapCount > 0) {
-            const opacity = calculateOpacity(overlapCount);
-            return {style: {backgroundColor: `rgba(255, 255, 255, ${opacity})`}};
-        }
-        return {};
+    if (overlapCount > 0) {
+        const opacity = calculateOpacity(overlapCount);
+        const backgroundColor = theme === "dark" 
+            ? `rgba(255, 255, 255, ${opacity})` 
+            : `rgba(0, 0, 0, ${opacity})`;
+        return {style: {backgroundColor}};
+    }
+    return {};
     };
 
     return (
         <SyntaxHighlighter
             language={language}
             style={
-                cb
+                theme === "dark" ? stackoverflowDark : stackoverflowLight
             }
             showLineNumbers={true}
-            wrapLines={true}
+            wrapLongLines={true}
+            renderer={({
+                rows,
+                stylesheet,
+                useInlineStyles,
+            }) => {
+                return rows.map((row, index) => {
+                    const children = row.children;
+                    const lineNumberElement = children?.shift();
+    
+                    if (lineNumberElement) {
+                        row.children = [
+                            lineNumberElement,
+                            {
+                                children,
+                                properties: {
+                                    className: [],
+                                },
+                                tagName: 'span',
+                                type: 'element',
+                            },
+                        ];
+                    }
+    
+                    return createElement({
+                        node: row,
+                        stylesheet,
+                        useInlineStyles,
+                        key: index,
+                    });
+                });
+            }}
             customStyle={{
-                fontSize: "11px",
-                overflowY: shouldScrollY ? 'scroll' : 'hidden',
+                fontSize: "12px",
+                borderRadius: "8px",
+                overflowY: shouldScrollY ? 'scroll' : 'auto',
                 //overflowY: 'scroll',
-                maxHeight: '400px',
+                maxHeight: shouldScrollY ? '400px' : 'auto',
             }}
             lineProps={lineNumber => getLineProps(lineNumber)}
         >
