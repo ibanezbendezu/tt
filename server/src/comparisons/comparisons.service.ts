@@ -2,6 +2,8 @@ import { Injectable } from "@nestjs/common";
 import { Dolos, Report } from "src/dolos";
 import { Comparison } from "@prisma/client";
 import { PrismaService } from "src/prisma/prisma.service";
+import { createHash } from "crypto";
+import { languagePicker } from "src/shared/utils/util";
 
 @Injectable()
 export class ComparisonsService {
@@ -281,4 +283,61 @@ export class ComparisonsService {
         "v": "verilog",
         "vh": "verilog"
     };
+
+    async makeComparison(leftRepository: any, rightRepository: any, clusterId?: number) {
+        try {
+            const dolos = new Dolos();
+    
+            const [leftRepoFiles, rightRepoFiles] = await Promise.all([
+                dolos.stringsToFiles(leftRepository.content),
+                dolos.stringsToFiles(rightRepository.content)
+            ]);
+
+            /* const comparisonSha = createHash('sha256').update(leftRepository.sha, rightRepository.sha).digest('hex');
+            const comparisonFound = await this.prisma.comparison.findUnique({ where: { sha: comparisonSha } });
+            if (comparisonFound) {
+                return comparisonFound;
+            } */
+
+            const promises = leftRepoFiles.flatMap((file1) =>
+                rightRepoFiles.map((file2) => dolos.analyze([file1, file2])
+                    .then(similarityReport => ({
+                        file1Path: file1.path,
+                        file1Sha: file1.sha,
+                        file2Path: file2.path,
+                        file2Sha: file2.sha,
+                        similarityReport,
+                    })))
+            );
+    
+            const results = await Promise.all(promises);
+    
+            const pairs = results.map(result => ({
+                similarityPercentage: result.similarityReport.allPairs()[0].similarity,
+                leftFilepath: result.file1Path,
+                leftFileSha: result.file1Sha,
+                rightFilepath: result.file2Path,
+                rightFileSha: result.file2Sha,
+            }));
+    
+            return pairs;
+
+            /* await Promise.all(
+                results.map(async (result) => {
+                    await this.prisma.fileComparison.create({
+                        data: {
+                            file1Path: result.file1Path,
+                            file1Sha: result.file1Sha,
+                            file2Path: result.file2Path,
+                            file2Sha: result.file2Sha,
+                            similarityPercentage: result.similarityPercentage,
+                        },
+                    });
+                })
+            ); */
+
+            } catch (error) {
+            console.log(error);
+        }
+    }
 }

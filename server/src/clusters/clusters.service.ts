@@ -4,6 +4,7 @@ import { Cluster } from "@prisma/client";
 import { RepositoriesService } from "src/repositories/repositories.service";
 import { ComparisonsService } from "src/comparisons/comparisons.service";
 import { createHash } from 'crypto';
+import { compoundHash } from "src/shared";
 
 
 
@@ -489,7 +490,6 @@ export class ClustersService {
         const currentTime = new Date().toISOString();
         const clusterSha = createHash('sha256').update(concatenatedShas + currentTime).digest('hex');
 
-
         let cluster = await this.prisma.cluster.create({
             data: {
                 sha: clusterSha,
@@ -761,5 +761,81 @@ export class ClustersService {
         });
     
         return pairs;
+    }
+
+    async makeCluster(repos: any[], username: string) {
+        console.log(repos);
+        console.log(username);
+
+        const repositoryContents = await Promise.all(repos.map(async (repo) => {
+            return await this.repository.getRepositoryContent(repo.owner, repo.name, username);
+        }));
+
+        console.log("Contenido de los repositorios obtenido");
+
+        const clusterSha = compoundHash(repositoryContents, true);
+
+        const comparisonPromises = [];
+        for (let i = 0; i < repositoryContents.length; i++) {
+            for (let j = i + 1; j < repositoryContents.length; j++) {
+                comparisonPromises.push(
+                    this.comparisons.makeComparison(repositoryContents[i], repositoryContents[j])
+                        .then(comparison => ({
+                            repo1: repositoryContents[i].name,
+                            repo2: repositoryContents[j].name,
+                            results: comparison
+                        }))
+                );
+            }
+        }
+
+        const comparisons = await Promise.all(comparisonPromises);
+        return comparisons;
+
+        /* const comparisons = [];
+        for (let i = 0; i < repositoryContents.length; i++) {
+            for (let j = i + 1; j < repositoryContents.length; j++) {
+                console.log(`\nComparando ${repositoryContents[i].name} con ${repositoryContents[j].name}`);
+                let comparison = await this.comparisons.makeComparison(repositoryContents[i], repositoryContents[j]);
+                comparisons.push({
+                    repo1: repositoryContents[i].name,
+                    repo2: repositoryContents[j].name,
+                    results: comparison});
+            }
+        }
+
+        return comparisons; */
+
+        /* let cluster = await this.prisma.cluster.create({
+            data: {
+                sha: clusterSha,
+                clusterDate: new Date(),
+                numberOfRepos: repos.length
+            }
+        });
+
+        let comparisons = [];
+        for (let i = 0; i < repositoryContents.length; i++) {
+            for (let j = i + 1; j < repositoryContents.length; j++) {
+                console.log(`\nComparando ${repositoryContents[i].name} con ${repositoryContents[j].name}`);
+                let comparison = await this.comparisons.makeComparison(repositoryContents[i], repositoryContents[j]);
+                comparisons.push({repo1: repositoryContents[i].name, repo2: repositoryContents[j].name, results: comparison});
+
+                cluster = await this.prisma.cluster.update({
+                    where: { id: cluster.id },
+                    data: {
+                        comparisons: { connect: { id: comparison.id } }
+                    }
+                });
+
+                comparison = await this.prisma.comparison.update({
+                    where: { id: comparison.id },
+                    data: {
+                        clusters: { connect: { id: cluster.id } }
+                    }
+                });
+            }
+        }
+        return comparisons; */
     }
 }

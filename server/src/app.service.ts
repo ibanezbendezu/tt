@@ -1,8 +1,19 @@
 import { Injectable } from "@nestjs/common";
 import { Dolos } from "./dolos";
+import { RepositoriesService } from "src/repositories/repositories.service";
+import { ComparisonsService } from "./comparisons/comparisons.service";
+import { ClustersService } from "./clusters/clusters.service";
 
 @Injectable()
 export class AppService {
+
+    constructor(
+        private repository: RepositoriesService,
+        private comparison: ComparisonsService,
+        private cluster: ClustersService
+    ) {
+    }
+
     getHello(): string {
         return "Hello World!";
     }
@@ -101,5 +112,19 @@ export class AppService {
             }
             console.log("--------------------------------------------------");
         }
+    }
+
+    async makeComparison() {
+        const username = "ibanezbendezu";
+        const repos = [
+            { owner: "ibanezbendezu", name: "tingeso-ev1" },
+            { owner: "holYadio", name: "TingesoPEP1" },
+            { owner: "ibanezbendezu", name: "tttest" },
+            { owner: "Issipisi", name: "Proyecto1_Tingeso" },
+        ];
+        
+        const results = await this.cluster.makeCluster(repos, username);
+
+        return results;
     }
 }

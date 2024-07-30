@@ -22,6 +22,7 @@ import useCart from '@/store/repos';
 import {AddDialog} from "./add-dialog"
 import AddForm from "./add-form";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { TooltipHint } from "@/components/tooltip-hint";
 
 
 export const Cart = () => {
@@ -129,25 +130,22 @@ export const Cart = () => {
                         <ConfirmModal onConfirm={() => handleRepos()}>
                             <div className="flex justify-center w-full"
                                  style={{pointerEvents: cartItems.length <= 1 ? 'none' : 'auto'}}>
-                                <Button disabled={cartItems.length <= 1} className="h-6 w-full">
-                                    Comparar
-                                </Button>
+                                <TooltipHint text="Comparar" side="bottom" disabled={cartItems.length <= 1}>
+                                    <Button disabled={cartItems.length <= 1} className="h-6 w-full">
+                                        Comparar
+                                    </Button>
+                                </TooltipHint>
                             </div>
                         </ConfirmModal>
 
                         <div className="flex justify-center"
                              style={{pointerEvents: (cartItems.length <= 0 || store.length <= 0) ? 'none' : 'auto'}}>
-                            <TooltipProvider>
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <Button disabled={cartItems.length <= 0 || store.length <= 0} className="h-6 w-full"
-                                                onClick={() => setIsAddOpen(true)}>
-                                            +
-                                        </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>Agregar a comparación</TooltipContent>
-                                </Tooltip>
-                            </TooltipProvider>
+                            <TooltipHint text="Añadir a comparación" side="bottom" disabled={cartItems.length <= 0 || store.length <= 0}>
+                                <Button disabled={cartItems.length <= 0 || store.length <= 0} className="h-6 w-full"
+                                        onClick={() => setIsAddOpen(true)}>
+                                    +
+                                </Button>
+                            </TooltipHint>
                         </div>
                     </div>
 
@@ -180,18 +178,20 @@ export const Cart = () => {
             </aside>
 
             {isCollapsed && (
-                <div
-                    className="h-6 w-6 text-muted-foreground rounded-sm hover:bg-neutral-300 dark:bg-neutral-600 absolute top-3 right-4 z-[99998] cursor-pointer"
-                    onClick={resetWidth}
-                >
-                    {cartItems.length > 0 && (
-                        <div
-                            className='absolute aspect-square pointer-events-none h-5 w-5 sm:h-5 grid place-items-center top-0 bg-red-400 text-white rounded-sm right-0 -translate-x-8 translate-y-0.5'>
-                            <p className='text-xs sm:text-xs'>{cartItems.length}</p>
-                        </div>
-                    )}
-                    <BsSlash className="h-6 w-6" style={{strokeWidth: '0.5px'}}/>
-                </div>
+                <TooltipHint text="Haga clic para abrir el carrito" side="left">
+                    <div
+                        className="h-6 w-6 text-muted-foreground rounded-sm hover:bg-neutral-300 dark:bg-neutral-600 absolute top-3 right-4 z-[99998] cursor-pointer"
+                        onClick={resetWidth}
+                    >
+                        {cartItems.length > 0 && (
+                            <div
+                                className='absolute aspect-square pointer-events-none h-5 w-5 sm:h-5 grid place-items-center top-0 bg-red-400 text-white rounded-sm right-0 -translate-x-8 translate-y-0.5'>
+                                <p className='text-xs sm:text-xs'>{cartItems.length}</p>
+                            </div>
+                        )}
+                        <BsSlash className="h-6 w-6" style={{strokeWidth: '0.5px'}}/>
+                    </div>
+                </TooltipHint>
             )}
         </>
     );

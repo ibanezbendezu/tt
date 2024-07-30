@@ -1,13 +1,16 @@
-import { Controller, Get, Req, UseGuards } from "@nestjs/common";
+import { Controller, Get, NotFoundException, Req, UseGuards } from "@nestjs/common";
 import { Request } from "express";
 
 import { AppService } from "./app.service";
 import { JwtAuthGuard } from "./auth/jwt/jwt-auth.guard";
 import { GithubOauthGuard } from "./auth/github/github-oauth.guard";
+import { ClustersService } from "./clusters/clusters.service";
 
 @Controller()
 export class AppController {
-    constructor(private readonly appService: AppService) {
+    constructor(
+        private readonly appService: AppService,
+    ) {
     }
 
     @Get()
@@ -32,5 +35,12 @@ export class AppController {
     @Get("dolos")
     dolos() {
         return this.appService.dolosTest();
+    }
+
+    @Get("/make")
+    async makeComparison() {
+        const comparison = await this.appService.makeComparison();
+        if (!comparison) throw new NotFoundException("Comparison not created");
+        return comparison;
     }
 }

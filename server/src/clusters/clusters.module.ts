@@ -8,7 +8,8 @@ import { ClustersService } from "./clusters.service";
 @Module({
     imports: [PrismaModule, RepositoriesModule, ComparisonsModule],
     controllers: [ClustersController],
-    providers: [ClustersService]
+    providers: [ClustersService],
+    exports: [ClustersService]
 })
 export class ClustersModule {
 }

@@ -4,7 +4,7 @@ import {Button} from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 
-const Error = () => {
+const ErrorPage = () => {
     return (
         <div className="h-full flex flex-col items-center justify-center space-y-4">
             <h2 className="text-xl font-medium">Algo salió mal!</h2>
@@ -15,4 +15,4 @@ const Error = () => {
     );
 };
 
-export default Error;
+export default ErrorPage;
