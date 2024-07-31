@@ -20,16 +20,6 @@ export class PairsController {
         return pairFound;
     }
 
-    @Get(":clusterId/:fileId")
-    async getPairsByClusterId(
-        @Param("clusterId") clusterId: string,
-        @Param("fileId") fileId: string,
-    ){
-        const pairsFound = await this.pairsService.getPairsByClusterId(Number(clusterId), Number(fileId));
-        if (!pairsFound) throw new NotFoundException("Pairs not found");
-        return pairsFound;
-    }
-
     @Get("/sha/:sha/:fileSha")
     async getPairsByClusterSha(
         @Param("sha") sha: string,

@@ -18,7 +18,7 @@ import {useEffect, useState} from "react";
 import {
     fileContentRequest,
     fileContentRequestBySha,
-    pairByClusterShaDataRequest
+    pairsByClusterShaDataRequest
 } from "@/api/server-data";
 import {Box, User} from "lucide-react";
 import React from "react";
@@ -42,7 +42,7 @@ export default function FilePage({params}: { params: any }) {
 
     useEffect(() => {
         const fetchData = async () => {
-            const res = await pairByClusterShaDataRequest(params.id, params.fileId);
+            const res = await pairsByClusterShaDataRequest(params.id, params.fileId);
             const pairs = res.data;
             const f = res.data.file
             const fContent = await fileContentRequestBySha(f.sha);

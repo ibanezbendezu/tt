@@ -19,8 +19,12 @@ export class Dolos {
         this.options = new Options(customOptions);
     }
 
-    public async stringsToFiles(filesData: { path: string; content: string, sha: string }[]): Promise<File[]> {
-        return filesData.map(fileData => new File(fileData.path, fileData.content, fileData.sha));
+    public async stringsToFiles(filesData: { path: string; content: string; sha: string; type: string }[]): Promise<{ file: File; sha: string; type: string }[]> {
+        return filesData.map(fileData => ({
+            file: new File(fileData.path, fileData.content, fileData.sha),
+            sha: fileData.sha,
+            type: fileData.type,
+        }));
     }
 
     public async analyzeFromString(filesData: { path: string; content: string }[]): Promise<Report> {

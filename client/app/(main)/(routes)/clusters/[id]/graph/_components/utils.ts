@@ -111,7 +111,7 @@ export function fileCytoscape(data: any) {
         sourceName: string;
         targetName: string;
         color: string;
-        similarity: number;
+        similarity: string;
     }
 
     interface Edge {
@@ -167,7 +167,7 @@ export function fileCytoscape(data: any) {
 
                     sourceName: sourceName,
                     targetName: fileName,
-                    similarity: parseFloat(similarity.toFixed(4)),
+                    similarity: Math.round(similarity) + '%',
                     color: colorScale(similarity)
                 },
             });

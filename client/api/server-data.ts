@@ -17,16 +17,6 @@ export const profileDataRequest = async (username: string) => {
     }
 }
 
-export const clusterDataRequest = async (id: number) => {
-    try {
-        const res = await axios.get(`/clusters/${id}`);
-        return {data: res.data};
-    } catch (error) {
-        console.error("Error fetching cluster data:", error);
-        throw error;
-    }
-}
-
 export const clusterDataRequestBySha = async (sha: string) => {
     try {
         const res = await axios.get(`/clusters/sha/${sha}`);
@@ -100,16 +90,6 @@ export const fileContentRequestBySha = async (sha: string) => {
     }
 }
 
-export const pairSimilaritiesByClusterRequest = async (id: number) => {
-    try {
-        const res = await axios.get(`/clusters/${id}/similarities`);
-        return {data: res.data};
-    } catch (error) {
-        console.error("Error fetching pair similarities data:", error);
-        throw error;
-    }
-}
-
 export const pairSimilaritiesByClusterShaRequest = async (sha: string) => {
     try {
         const res = await axios.get(`/clusters/sha/${sha}/similarities`);
@@ -132,17 +112,8 @@ export const pairByIdDataRequest = async (id: number) => {
     }
 }
 
-export const pairByClusterDataRequest = async (clusterId: number, fileId: number) => {
-    try {
-        const res = await axios.get(`/pairs/${clusterId}/${fileId}`);
-        return {data: res.data};
-    } catch (error) {
-        console.error("Error fetching pair data:", error);
-        throw error;
-    }
-}
 
-export const pairByClusterShaDataRequest = async (sha: string, fileSha: string) => {
+export const pairsByClusterShaDataRequest = async (sha: string, fileSha: string) => {
     try {
         const res = await axios.get(`/pairs/sha/${sha}/${fileSha}`);
         return {data: res.data};

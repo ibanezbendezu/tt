@@ -17,7 +17,7 @@ import "./style.css";
 import {FileDialog} from '@/app/(main)/(routes)/clusters/[id]/graph/_components/file-dialog';
 import {PairDialog} from '@/app/(main)/(routes)/clusters/[id]/graph/_components/pair-dialog';
 
-import {pairByClusterShaDataRequest, pairByIdDataRequest} from '@/api/server-data';
+import {pairsByClusterShaDataRequest, pairByIdDataRequest} from '@/api/server-data';
 import {fileCytoscape} from './utils';
 import {Legend} from './legends';
 
@@ -51,7 +51,7 @@ export const Cluster: React.FC<ClusterProps> = ({data, clusterId}) => {
 
     const handleFile = async (e: any) => {
         const fileSha = e.sha;
-        const res = await pairByClusterShaDataRequest(clusterId, fileSha);
+        const res = await pairsByClusterShaDataRequest(clusterId, fileSha);
         const fileData = res.data.file;
 
         const cytoscapeFormat = fileCytoscape(res.data)

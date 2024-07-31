@@ -27,9 +27,9 @@ export class ClustersService {
                             select: {
                                 similarity: true,
                                 leftFilepath: true,
-                                leftFileId: true,
+                                leftFileSha: true,
                                 rightFilepath: true,
-                                rightFileId: true,
+                                rightFileSha: true,
                             }
                         }
                     }
@@ -45,217 +45,15 @@ export class ClustersService {
             },
             include: {
                 comparisons: {
-                    select: {
+                    select : {
                         id: true,
                         sha: true,
                         similarity: true,
-                        comparisonDate: true,
-
-                        repositories: {
-                            select: {
-                                id: true,
-                                name: true,
-                                owner: true,
-                                sha: true,
-                            }
-                        },
-                        pairs: {
-                            select: {
-                                id: true,
-                                similarity: true,
-                                leftFilepath: true,
-                                lineCountLeft: true,
-                                rightFilepath: true,
-                                lineCountRight: true,
-                                fragments: true,
-
-                                files: {
-                                    select: {
-                                        filepath: true,
-                                        sha: true,
-                                        id: true,
-                                        lineCount: true,
-                                        repositoryId: true,
-                                        type: true,
-                                        repository: {
-                                            select: {
-                                                id: true,
-                                                name: true,
-                                                owner: true,
-                                                totalLines: true,
-                                                sha: true
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
                     }
                 }
             }
         });
-
-        const cf = await clusterFind;
-        const comparisons = cf.comparisons;
-
-        const groupedByRepository = comparisons.reduce((acc, comparison) => {
-            comparison.pairs.forEach(pair => {
-                let leftFile = pair.files.find(f => f.filepath === pair.leftFilepath);
-                let rightFile = pair.files.find(f => f.filepath === pair.rightFilepath);
-
-                pair.files.forEach(file => {
-                    const { repositoryId, filepath, repository } = file;
-                    if (!acc[repositoryId]) {
-                        acc[repositoryId] = {
-                            type: "node",
-                            class: "repository",
-                            name: repository.owner + "/" + repository.name,
-                            fever: 0,
-                            value: 0,
-                            id: repository.id,
-                            sha: repository.sha,
-                            repo: repository.name,
-                            owner: repository.owner,
-                            numberOfFolders: 0,
-                            numberOfFiles: 0,
-                            repoLines: 0,
-                            edges: [],
-                            children: []
-                        };
-                    }
-                    const pathComponents = filepath.split("/");
-                    const filename = pathComponents.pop();
-                    const folderPath = pathComponents.join("/");
-
-                    let folder = acc[repositoryId].children.find(f => f.folderPath === folderPath);
-                    if (!folder) {
-                        let fileType = "Unknown";
-                        if (file.type === "Controller" || file.type === "Service" || file.type === "Repository") {
-                            fileType = file.type;
-                        }
-                        folder = {
-                            type: "node",
-                            class: "folder",
-                            name: folderPath.split("/").pop(),
-                            fever: 0,
-                            value: 0,
-                            folderType: fileType,
-                            folderPath,
-                            folderLines: 0,
-                            numberOfFiles: 0,
-                            edges: [],
-                            children: []
-                        };
-
-                        acc[repositoryId].children.push(folder);
-                    }
-
-                    const link = {
-                        similarity: pair.similarity,
-                        pairFileId: pair.leftFilepath !== filepath ? leftFile.id : rightFile.id,
-                        pairFileSha: pair.leftFilepath !== filepath ? leftFile.sha : rightFile.sha,
-                        pairFileSide: pair.leftFilepath !== filepath ? "left" : "right",
-                        pairFilePath: pair.leftFilepath !== filepath ? pair.leftFilepath : pair.rightFilepath,
-                        pairFileType: pair.leftFilepath !== filepath ? leftFile.type : rightFile.type,
-                        pairFileLines: pair.leftFilepath !== filepath ? leftFile.lineCount : rightFile.lineCount,
-                        pairFileRepository: comparison.repositories.find(r => r.id !== repositoryId).id,
-                        pairFileRepositoryName: comparison.repositories.find(r => r.id !== repositoryId).name,
-                        pairFileRepositoryOwner: comparison.repositories.find(r => r.id !== repositoryId).owner,
-                        fragments: pair.fragments,
-                        pairId: pair.id
-                    };
-
-                    const existingFileIndex = folder.children.findIndex(f => f.filepath === filepath);
-
-                    if (existingFileIndex !== -1) {
-                        folder.children[existingFileIndex].links.push(link);
-                    } else {
-                        folder.children.push({
-                            type: "leaf",
-                            class: "file",
-                            name: filepath.split("/").pop().split(".").shift(),
-                            value: file.lineCount,
-                            fever: 0,
-                            id: file.id,
-                            sha: file.sha,
-                            filepath,
-                            fileType: file.type,
-                            lines: file.lineCount,
-                            links: [link]
-                        });
-                    }
-                });
-            });
-            return acc;
-        }, {});
-
-        const result = {
-            id: cf.id,
-            sha: cf.sha,
-            date: cf.clusterDate,
-            numberOfRepos: 0,
-            numberOfFolders: 0,
-            numberOfFiles: 0,
-            totalLines: 0,
-            repositories: []
-        };
-
-        Object.keys(groupedByRepository).forEach(repositoryId => {
-            const repo = groupedByRepository[repositoryId];
-            let foldersArray = Object.keys(repo.children).map(folderPath => repo.children[folderPath]);
-            
-            foldersArray.forEach(folder => {
-                folder.children.forEach(file => {
-                    file.links = file.links.filter(link => {
-                        return link.pairFileType === file.fileType;
-                    });
-                });
-
-                folder.children = folder.children.filter(file => {
-                    return file.fileType === folder.folderType;
-                });
-            });
-            foldersArray = foldersArray.filter(folder => {
-                return ["Controller", "Service", "Repository"].includes(folder.folderType) && folder.children.every(child => child.links.length > 0);
-            });
-            
-            repo.children = foldersArray;
-            if (repo.children.length > 0) {
-                result.repositories.push(repo);
-            }
-        });
-
-        result.repositories.forEach(repo => {
-            repo.children.forEach(folder => {
-                folder.children.forEach(file => {
-                    const totalSimilarity = file.links.reduce((acc, link) => acc + link.similarity, 0);
-                    const averageFever = file.links.length > 0 ? totalSimilarity / file.links.length : 0;
-                    file.fever = averageFever;
-                });
-                const totalFiles = folder.children.length;
-                const totalLines = folder.children.reduce((acc, file) => acc + file.lines, 0);
-                const totalFolderFever = folder.children.reduce((acc, file) => acc + file.fever, 0);
-                const averageFolderFever = folder.children.length > 0 ? totalFolderFever / folder.children.length : 0;
-                folder.numberOfFiles = totalFiles;
-                folder.folderLines = totalLines;
-                folder.fever = averageFolderFever;
-            });
-            const totalFiles = repo.children.reduce((acc, folder) => acc + folder.numberOfFiles, 0);
-            const totalFolders = repo.children.length;
-            const totalRepoLines = repo.children.reduce((acc, folder) => acc + folder.folderLines, 0);
-            const totalRepoFever = repo.children.reduce((acc, folder) => acc + folder.fever, 0);
-            const averageRepoFever = repo.children.length > 0 ? totalRepoFever / repo.children.length : 0;
-            repo.numberOfFiles = totalFiles;
-            repo.numberOfFolders = totalFolders;
-            repo.repoLines = totalRepoLines;
-            repo.fever = averageRepoFever;
-        });
-        result.numberOfRepos = result.repositories.length;
-        result.numberOfFolders = result.repositories.reduce((acc, repo) => acc + repo.numberOfFolders, 0);
-        result.numberOfFiles = result.repositories.reduce((acc, repo) => acc + repo.numberOfFiles, 0);
-        result.totalLines = result.repositories.reduce((acc, repo) => acc + repo.repoLines, 0);
-
-        return result;
+        return clusterFind;
     }
 
     async getClusterBySha(sha: string): Promise<any> {
@@ -768,14 +566,21 @@ export class ClustersService {
         console.log(username);
 
         const repositoryContents = await Promise.all(repos.map(async (repo) => {
-            return await this.repository.getRepositoryContent(repo.owner, repo.name, username);
+            return await this.repository.getFilteredRepositoryContent(repo.owner, repo.name, username);
         }));
 
         console.log("Contenido de los repositorios obtenido");
 
         const clusterSha = compoundHash(repositoryContents, true);
+        let cluster = await this.prisma.cluster.create({
+            data: {
+                sha: clusterSha,
+                clusterDate: new Date(),
+                numberOfRepos: repos.length
+            }
+        });
 
-        const comparisonPromises = [];
+        /* const comparisonPromises = [];
         for (let i = 0; i < repositoryContents.length; i++) {
             for (let j = i + 1; j < repositoryContents.length; j++) {
                 comparisonPromises.push(
@@ -790,37 +595,13 @@ export class ClustersService {
         }
 
         const comparisons = await Promise.all(comparisonPromises);
-        return comparisons;
-
-        /* const comparisons = [];
-        for (let i = 0; i < repositoryContents.length; i++) {
-            for (let j = i + 1; j < repositoryContents.length; j++) {
-                console.log(`\nComparando ${repositoryContents[i].name} con ${repositoryContents[j].name}`);
-                let comparison = await this.comparisons.makeComparison(repositoryContents[i], repositoryContents[j]);
-                comparisons.push({
-                    repo1: repositoryContents[i].name,
-                    repo2: repositoryContents[j].name,
-                    results: comparison});
-            }
-        }
-
         return comparisons; */
 
-        /* let cluster = await this.prisma.cluster.create({
-            data: {
-                sha: clusterSha,
-                clusterDate: new Date(),
-                numberOfRepos: repos.length
-            }
-        });
-
-        let comparisons = [];
         for (let i = 0; i < repositoryContents.length; i++) {
             for (let j = i + 1; j < repositoryContents.length; j++) {
                 console.log(`\nComparando ${repositoryContents[i].name} con ${repositoryContents[j].name}`);
                 let comparison = await this.comparisons.makeComparison(repositoryContents[i], repositoryContents[j]);
-                comparisons.push({repo1: repositoryContents[i].name, repo2: repositoryContents[j].name, results: comparison});
-
+                console.log(`Comparación realizada: ${comparison.id}`);
                 cluster = await this.prisma.cluster.update({
                     where: { id: cluster.id },
                     data: {
@@ -836,6 +617,7 @@ export class ClustersService {
                 });
             }
         }
-        return comparisons; */
+
+        return cluster;
     }
 }

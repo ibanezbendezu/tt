@@ -119,8 +119,10 @@ export class AppService {
         const repos = [
             { owner: "ibanezbendezu", name: "tingeso-ev1" },
             { owner: "holYadio", name: "TingesoPEP1" },
+            /* { owner: "Issipisi", name: "Proyecto1_Tingeso" },
             { owner: "ibanezbendezu", name: "tttest" },
-            { owner: "Issipisi", name: "Proyecto1_Tingeso" },
+            { owner: "ibanezbendezu", name: "tttest2" },
+            { owner: "ibanezbendezu", name: "tttest3" }, */
         ];
         
         const results = await this.cluster.makeCluster(repos, username);

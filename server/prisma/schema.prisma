@@ -71,13 +71,11 @@ model Pair {
   similarity      Float
 
   leftFilepath     String
-  leftFileId       Int
   leftFileSha      String
   charCountLeft    Int
   lineCountLeft    Int
 
   rightFilepath    String
-  rightFileId      Int
   rightFileSha     String
   charCountRight   Int
   lineCountRight   Int
@@ -86,7 +84,7 @@ model Pair {
 
   fragments       Fragment[]
 
-  Comparison      Comparison @relation(fields: [comparisonId], references: [id])
+  comparison      Comparison @relation(fields: [comparisonId], references: [id])
   comparisonId    Int
 }
 
