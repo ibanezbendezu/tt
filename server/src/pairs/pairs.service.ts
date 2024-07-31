@@ -177,7 +177,7 @@ export class PairsService {
         });
         
         const pairsWithContent = await Promise.all(pairsFound.map(async (pair) => {
-            if (pair.leftFileSha == fileFound.sha) {
+            if (pair.leftFileSha !== fileFound.sha) {
                 [pair.leftFileSha, pair.rightFileSha] = [pair.rightFileSha, pair.leftFileSha];
                 
                 pair.fragments.forEach(fragment => {
@@ -187,7 +187,7 @@ export class PairsService {
             }
 
             const fragments = pair.fragments;
-            const file = pair.files.find(file => file.sha = pair.rightFileSha);
+            const file = pair.files.find(file => file.sha == pair.rightFileSha);
 
             return {
                 id: pair.id,

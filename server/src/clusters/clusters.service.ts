@@ -23,15 +23,7 @@ export class ClustersService {
                 comparisons: {
                     select: {
                         repositories: true,
-                        pairs: {
-                            select: {
-                                similarity: true,
-                                leftFilepath: true,
-                                leftFileSha: true,
-                                rightFilepath: true,
-                                rightFileSha: true,
-                            }
-                        }
+                        pairs: true,
                     }
                 }
             }
@@ -49,6 +41,15 @@ export class ClustersService {
                         id: true,
                         sha: true,
                         similarity: true,
+                        repositories: true,
+                        pairs: {
+                            select: {
+                                id: true,
+                                similarity: true,
+                                leftFilepath: true,
+                                rightFilepath: true,
+                            }
+                        }
                     }
                 }
             }

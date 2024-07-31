@@ -50,15 +50,15 @@ export const CodeViewer = ({
     };
 
     const getLineProps = (lineNumber: number) => {
-        const overlapCount = lineOverlapCount.get(lineNumber) || 0;
-    if (overlapCount > 0) {
-        const opacity = calculateOpacity(overlapCount);
-        const backgroundColor = theme === "dark" 
-            ? `rgba(255, 255, 255, ${opacity})` 
-            : `rgba(0, 0, 0, ${opacity})`;
-        return {style: {backgroundColor}};
-    }
-    return {};
+        const overlapCount = lineOverlapCount.get(lineNumber) ?? 0;
+        if (overlapCount > 0) {
+            const opacity = calculateOpacity(overlapCount);
+            const backgroundColor = theme === "dark" || theme === "system"
+                ? `rgba(255, 255, 255, ${opacity})` 
+                : `rgba(0, 0, 0, ${opacity})`;
+            return {style: {backgroundColor}};
+        }
+        return {};
     };
 
     return (
@@ -115,7 +115,8 @@ export const CodeViewer = ({
 }
 
 CodeViewer.Void = function CodeViewerVoid() {
-    return <div className="mt-3 w-full h-8 rounded-md text-center" style={{backgroundColor: "#222222"}}></div>;
+    const { theme } = useTheme();
+    return <div className="w-full h-8 rounded-md text-center" style={{backgroundColor: theme === "dark" ? "#1c1b1b" : "#F6F6F6"}}></div>;
 }
 CodeViewer.Skeleton = function CodeViewerSkeleton() {
     return <Skeleton className="w-full h-48"/>;
