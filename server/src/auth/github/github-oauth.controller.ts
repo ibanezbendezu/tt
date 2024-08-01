@@ -7,6 +7,9 @@ import { PrismaService } from "src/prisma/prisma.service";
 import { JwtAuthService } from "../jwt/jwt-auth.service";
 import { GithubOauthGuard } from "./github-oauth.guard";
 
+/**
+ * Este controlador maneja todas las solicitudes relacionadas con la autenticación de GitHub.
+ */
 @Controller("auth/github")
 export class GithubOauthController {
     constructor(private jwtAuthService: JwtAuthService, private prisma: PrismaService) {
@@ -15,8 +18,16 @@ export class GithubOauthController {
     @Get()
     @UseGuards(GithubOauthGuard)
     async githubAuth() {
+        // La lógica de autenticación se maneja en el guard.
     }
 
+    /**
+     * Método que maneja la redirección de GitHub después de que el usuario haya iniciado sesión.
+     * Aquí, se crea un JWT y se envía al cliente.
+     * También se envía la información del usuario al cliente.
+     * @param req
+     * @param res
+    */
     @Get("callback")
     @UseGuards(GithubOauthGuard)
     async githubAuthCallback(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
@@ -41,16 +52,7 @@ export class GithubOauthController {
 
         res.cookie("jwt", accessToken);
         res.cookie("user", JSON.stringify(userWithToken));
-
         res.redirect(`${process.env.CLIENT_URL}/welcome`);
-
-        //return { access_token: accessToken };
-
-        // try {
-        // 	res.redirect(`${SERVICE_URL}/home`);
-        // } catch (err) {
-        // 	res.status(500).send({ success: false, message: err.message });
-        // }
     }
 
     @Get("logout")

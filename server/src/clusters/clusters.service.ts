@@ -6,8 +6,9 @@ import { ComparisonsService } from "src/comparisons/comparisons.service";
 import { createHash } from 'crypto';
 import { compoundHash } from "src/shared";
 
-
-
+/**
+ * Servicio que maneja todas las operaciones relacionadas con los clusters.
+ */
 @Injectable()
 export class ClustersService {
 
@@ -30,7 +31,7 @@ export class ClustersService {
         });
     }
 
-    async getClusterById(id: number): Promise<any> {
+    async getClusterById(id: number): Promise<Cluster> {
         const clusterFind = this.prisma.cluster.findUnique({
             where: {
                 id: id
@@ -57,6 +58,13 @@ export class ClustersService {
         return clusterFind;
     }
 
+    /**
+     * Método que obtiene un cluster por su SHA.
+     * SHA es un hash único que identifica un cluster.
+     * @param sha
+     * @returns Cluster data.
+     */
+    // ARREGLAR EL TIPO QUE DEVUELVE
     async getClusterBySha(sha: string): Promise<any> {
         const clusterFind = this.prisma.cluster.findUnique({
             where: {
@@ -143,7 +151,7 @@ export class ClustersService {
                         };
                     }
                     const pathComponents = filepath.split("/");
-                    const filename = pathComponents.pop();
+                    pathComponents.pop();
                     const folderPath = pathComponents.join("/");
 
                     let folder = acc[repositoryId].children.find(f => f.folderPath === folderPath);
@@ -277,6 +285,13 @@ export class ClustersService {
         return result;
     }
 
+    /**
+     * Método que crea un cluster a partir de una lista de repositorios.
+     * @param repos
+     * @param username
+     * @returns Cluster data.
+     */
+    // ARREGLAR EL TIPO QUE DEVUELVE
     async createCluster(repos: any[], username: string) {
         console.log(repos);
         console.log(username);
@@ -318,7 +333,13 @@ export class ClustersService {
 
         const newCluster = await this.prisma.cluster.findUnique({
             where: { id: cluster.id },
-            include: { comparisons: true }
+            include: {
+                comparisons: {
+                    include: {
+                        repositories: true,
+                    }
+                }
+            }
         });
 
         const rps = repositories.map(repo => {
@@ -365,7 +386,13 @@ export class ClustersService {
 
         const newCluster = await this.prisma.cluster.findUnique({
             where: { id: cluster.id },
-            include: { comparisons: true }
+            include: {
+                comparisons: {
+                    include: {
+                        repositories: true,
+                    }
+                }
+            }
         });
 
         const rps = repositories.map(repo => {
@@ -378,6 +405,15 @@ export class ClustersService {
         return { ...newCluster, repositories: rps };
     }
 
+    /**
+     * Método que actualiza un cluster a partir de una lista de repositorios.
+     * SHA es un hash único que identifica un cluster.
+     * @param sha
+     * @param repos
+     * @param username
+     * @returns Cluster data.
+    */
+    // ARREGLAR EL TIPO QUE DEVUELVE
     async updateClusterBySha(sha: string, repos: any[], username: string) {
         const repositories = await Promise.all(repos.map(async (repo) => {
             return await this.repository.getRepositoryContent(repo.owner, repo.name, username);
@@ -411,7 +447,13 @@ export class ClustersService {
 
         const newCluster = await this.prisma.cluster.findUnique({
             where: { id: cluster.id },
-            include: { comparisons: true }
+            include: {
+                comparisons: {
+                    include: {
+                        repositories: true,
+                    }
+                }
+            }
         });
 
         const rps = repositories.map(repo => {
@@ -448,6 +490,13 @@ export class ClustersService {
         return files;
     }
 
+    /**
+     * Método que obtiene los archivos de un cluster a partir de su SHA.
+     * SHA es un hash único que identifica un cluster.
+     * @param sha
+     * @returns Files data.
+     */
+    // ARREGLAR EL TIPO QUE DEVUELVE    
     async getFilesByClusterSha(sha: string) {
         const comparisons = await this.prisma.cluster.findUnique({
             where: { sha: sha },
@@ -517,6 +566,13 @@ export class ClustersService {
         return pairs;
     }
 
+    /**
+     * Método que obtiene las similitudes de los pares de un cluster a partir de su SHA.
+     * SHA es un hash único que identifica un cluster.
+     * @param sha
+     * @returns Pair similarities data.
+     */
+    // ARREGLAR EL TIPO QUE DEVUELVE
     async getPairSimilaritiesByClusterSha(sha: string) {
         const comparisons = await this.prisma.cluster.findUnique({
             where: { sha: sha },
@@ -562,6 +618,13 @@ export class ClustersService {
         return pairs;
     }
 
+    /**
+     * Método que crea un cluster a partir de una lista de repositorios.
+     * @param repos
+     * @param username
+     * @returns Cluster data.
+     */
+    // ARREGLAR EL TIPO QUE DEVUELVE
     async makeCluster(repos: any[], username: string) {
         console.log(repos);
         console.log(username);
@@ -580,23 +643,6 @@ export class ClustersService {
                 numberOfRepos: repos.length
             }
         });
-
-        /* const comparisonPromises = [];
-        for (let i = 0; i < repositoryContents.length; i++) {
-            for (let j = i + 1; j < repositoryContents.length; j++) {
-                comparisonPromises.push(
-                    this.comparisons.makeComparison(repositoryContents[i], repositoryContents[j])
-                        .then(comparison => ({
-                            repo1: repositoryContents[i].name,
-                            repo2: repositoryContents[j].name,
-                            results: comparison
-                        }))
-                );
-            }
-        }
-
-        const comparisons = await Promise.all(comparisonPromises);
-        return comparisons; */
 
         for (let i = 0; i < repositoryContents.length; i++) {
             for (let j = i + 1; j < repositoryContents.length; j++) {

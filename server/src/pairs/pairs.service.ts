@@ -3,8 +3,12 @@ import { PrismaService } from '../prisma/prisma.service';
 import { FilesService } from 'src/files/files.service';
 import { Octokit } from '@octokit/rest';
 
+/**
+ * Servicio que maneja todas las solicitudes relacionadas con los pares.
+ */
 @Injectable()
 export class PairsService {
+    // Octokit es una biblioteca de cliente GitHub para JavaScript.
     private octokit: Octokit;
 
     constructor(
@@ -13,6 +17,12 @@ export class PairsService {
     ) {
     }
 
+    /**
+     * Obtiene un par por su ID.
+     * @param pairId ID del par.
+     * @returns Par encontrado.
+     */
+    // ARREGLAR EL TIPO DE DATO QUE DEVUELVE ESTA FUNCIÓN
     async getPairById(pairId: number) {
         this.octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 
@@ -98,6 +108,14 @@ export class PairsService {
         return finalData;
     }
 
+    /**
+     * Obtiene los pares de un cluster por su SHA.
+     * SHA es un hash único que identifica un cluster.
+     * @param clusterSha SHA del cluster.
+     * @param fileSha SHA del archivo.
+     * @returns Pares del cluster.
+     */
+    // ARREGLAR EL TIPO DE DATO QUE DEVUELVE ESTA FUNCIÓN
     async getPairsByClusterSha(clusterSha: string, fileSha: string) {
         const fileFound = await this.prisma.file.findUnique({
             where: {
@@ -221,6 +239,7 @@ export class PairsService {
         return finalData;
     }
 
+    // ARREGLAR EL TIPO DE DATO QUE DEVUELVE ESTA FUNCIÓN
     async getAllPairs() {
         const pairsFound = await this.prisma.pair.findMany({
             select: {

@@ -1,5 +1,11 @@
 import { createHash } from 'crypto';
 
+/**
+ * Genera un hash compuesto a partir de los hashes de los elementos de un array y la fecha actual.
+ * @param items Elementos a concatenar.
+ * @param withDate Indica si se debe incluir la fecha actual en el hash.
+ * @returns Hash compuesto.
+ */
 export function compoundHash(items: any[], withDate: boolean): string {
     const concatenatedShas = items.map((item) => item.sha).join('');
     const hash = createHash('sha256').update(concatenatedShas);
@@ -12,6 +18,11 @@ export function compoundHash(items: any[], withDate: boolean): string {
     return hash.digest('hex');
 };
 
+/**
+ * Identifica el tipo de archivo a partir de su contenido.
+ * @param fileContent Contenido del archivo.
+ * @returns Tipo de archivo.
+ */
 export function identifyFileType(fileContent: string): string {
     const controllerPattern = /@Controller|\@GetMapping|\@PostMapping|\@DeleteMapping|\@PutMapping/;
     const servicePattern = /@Service|\@Injectable/;
@@ -31,6 +42,11 @@ export function identifyFileType(fileContent: string): string {
     return "Unknown";
 };
 
+/**
+ * Obtiene el lenguaje de programación a partir de la extensión de un archivo.
+ * @param extension Extensión del archivo.
+ * @returns Lenguaje de programación.
+ */
 export const languagePicker = {
     "sh": "bash",
     "bash": "bash",

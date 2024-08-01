@@ -1,9 +1,8 @@
 import { Injectable } from "@nestjs/common";
-import { Dolos, Report } from "src/dolos";
+import { Dolos } from "src/dolos";
 import { Comparison } from "@prisma/client";
 import { PrismaService } from "src/prisma/prisma.service";
 import { createHash } from "crypto";
-import { languagePicker } from "src/shared/utils/util";
 
 @Injectable()
 export class ComparisonsService {
@@ -20,7 +19,7 @@ export class ComparisonsService {
             const dolosFile = new Dolos();
 
             const leftRepoFiles = await dolosFile.stringsToFiles(leftRepository.content);
-            const righRepoFiles = await dolosFile.stringsToFiles(rightRepository.content);
+            const rightRepoFiles = await dolosFile.stringsToFiles(rightRepository.content);
 
             const sortStrings = [leftRepository.sha, rightRepository.sha].sort();
             const sha = sortStrings.join("");
@@ -79,21 +78,21 @@ export class ComparisonsService {
 
             console.log("Comparing repositories: ", leftRepository.name, rightRepository.name);
 
-            for (let i = 0; i < leftRepoFiles.length; i++) {
+            for (const element of leftRepoFiles) {
                 let fileA = await this.prisma.file.findUnique({
                     where: {
-                        sha: leftRepoFiles[i].file.sha
+                        sha: element.file.sha
                     }
                 });
                 if (!fileA) {
-                    const fileAType = this.identifyFileType(leftRepoFiles[i].file.content);
-                    const fileALanguage = this.getFileLanguage(leftRepoFiles[i].file.path);
+                    const fileAType = this.identifyFileType(element.file.content);
+                    const fileALanguage = this.getFileLanguage(element.file.path);
                     fileA = await this.prisma.file.create({
                         data: {
-                            sha: leftRepoFiles[i].sha,
-                            filepath: leftRepoFiles[i].file.path,
-                            charCount: leftRepoFiles[i].file.charCount,
-                            lineCount: leftRepoFiles[i].file.lineCount,
+                            sha: element.sha,
+                            filepath: element.file.path,
+                            charCount: element.file.charCount,
+                            lineCount: element.file.lineCount,
                             repository: { connect: { id: repositoryA.id } },
                             type: fileAType,
                             language: fileALanguage
@@ -107,29 +106,29 @@ export class ComparisonsService {
                         }
                     });
                 }
-                for (let j = 0; j < righRepoFiles.length; j++) {
-
+                for (const rightRepoFile of rightRepoFiles) {
+                
                     let fileB = await this.prisma.file.findUnique({
                         where: {
-                            sha: righRepoFiles[j].sha
+                            sha: rightRepoFile.sha
                         }
                     });
-
+                
                     if (!fileB) {
-                        const fileBType = this.identifyFileType(righRepoFiles[j].file.content);
-                        const fileBLanguage = this.getFileLanguage(righRepoFiles[j].file.path);
+                        const fileBType = this.identifyFileType(rightRepoFile.file.content);
+                        const fileBLanguage = this.getFileLanguage(rightRepoFile.file.path);
                         fileB = await this.prisma.file.create({
                             data: {
-                                sha: righRepoFiles[j].sha,
-                                filepath: righRepoFiles[j].file.path,
-                                charCount: righRepoFiles[j].file.charCount,
-                                lineCount: righRepoFiles[j].file.lineCount,
+                                sha: rightRepoFile.sha,
+                                filepath: rightRepoFile.file.path,
+                                charCount: rightRepoFile.file.charCount,
+                                lineCount: rightRepoFile.file.lineCount,
                                 repository: { connect: { id: repositoryB.id } },
                                 type: fileBType,
                                 language: fileBLanguage
                             }
                         });
-
+                
                         repositoryB = await this.prisma.repository.update({
                             where: { id: repositoryB.id },
                             data: {
@@ -138,38 +137,38 @@ export class ComparisonsService {
                             }
                         });
                     }
-                    console.log("Comparing files: ", leftRepoFiles[i].file.path, righRepoFiles[j].file.path);
-
+                    console.log("Comparing files: ", element.file.path, rightRepoFile.file.path);
+                
                     const dolos = new Dolos();
-                    const result = await dolos.analyze([leftRepoFiles[i].file, righRepoFiles[j].file]);
-
+                    const result = await dolos.analyze([element.file, rightRepoFile.file]);
+                
                     const pair = await this.prisma.pair.create({
                         data: {
                             similarity: result.allPairs()[0].similarity,
-
+                
                             leftFilepath: result.allPairs()[0].leftFile.path,
-                            leftFileSha: leftRepoFiles[i].sha,
+                            leftFileSha: element.sha,
                             charCountLeft: result.allPairs()[0].leftFile.charCount,
                             lineCountLeft: result.allPairs()[0].leftFile.lineCount,
-
+                
                             rightFilepath: result.allPairs()[0].rightFile.path,
-                            rightFileSha: righRepoFiles[j].sha,
+                            rightFileSha: rightRepoFile.sha,
                             charCountRight: result.allPairs()[0].rightFile.charCount,
                             lineCountRight: result.allPairs()[0].rightFile.lineCount,
-
+                
                             files: { connect: [{ id: fileA.id }, { id: fileB.id }] },
                             comparisonId: comparison.id
                         }
                     });
-
+                
                     let p = result.allPairs()[0];
                     if (p) {
                         for (const f of p.buildFragments()) {
-
+                
                             let left = f.leftSelection;
                             let right = f.rightSelection;
-
-                            let fragment = await this.prisma.fragment.create({
+                
+                            await this.prisma.fragment.create({
                                 data: {
                                     leftstartRow: left.startRow,
                                     leftendRow: left.endRow,
@@ -179,7 +178,7 @@ export class ComparisonsService {
                                     rightendRow: right.endRow,
                                     rightstartCol: right.startCol,
                                     rightendCol: right.endCol,
-                                    pair: { connect: { id: pair.id } }                                
+                                    pair: { connect: { id: pair.id } }
                                 }
                             });
                         }
@@ -281,7 +280,7 @@ export class ComparisonsService {
                 dolos.stringsToFiles(rightRepository.content)
             ]);
 
-            const sortStrings = [leftRepository.sha, rightRepository.sha].sort();
+            const sortStrings = [leftRepository.sha, rightRepository.sha].sort((a, b) => a.localeCompare(b));
             const sha = sortStrings.join("");
             const comparisonSha = createHash("sha256").update(sha).digest("hex");
             const comparisonFound = await this.prisma.comparison.findUnique({ where: { sha: comparisonSha } });

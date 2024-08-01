@@ -1,7 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { Octokit } from "@octokit/rest";
 import { UsersService } from "src/users/users.service";
-import { Repository } from "@prisma/client";
 import { LRUCache } from "lru-cache";
 
 interface FileContent {
@@ -10,19 +9,31 @@ interface FileContent {
     content: string;
 }
 
+/**
+ * Servicio que maneja todas las solicitudes relacionadas con los repositorios.
+ */
 @Injectable()
 export class RepositoriesService {
+    // Octokit es una biblioteca de cliente GitHub para JavaScript.
     private octokit: Octokit;
+    // LRUCache es una biblioteca de almacenamiento en caché de JavaScript.
     private cache: LRUCache<string, string>;
 
     constructor(
         private user: UsersService) {
         this.cache = new LRUCache<string, string>({
             max: 1000,
-            ttl: 1000 * 60 * 60 // 1 hour
+            ttl: 1000 * 60 * 60 // 1 hora
         });
     }
 
+    /**
+     * Obtiene el contenido de un repositorio por su propietario y nombre.
+     * @param owner Propietario del repositorio.
+     * @param name Nombre del repositorio.
+     * @param username Nombre de usuario del propietario del repositorio.
+     * @returns Contenido del repositorio.
+     */
     async getRepositoryContent(owner: string, name: string, username: string) {
         const user_token = await this.user.getUserToken(username);
         const token = user_token || process.env.GITHUB_TOKEN;
@@ -63,6 +74,16 @@ export class RepositoriesService {
         }
     }
 
+    /**
+     * Obtiene el contenido de un repositorio por su propietario y nombre.
+     * Filtra el contenido por tipo de archivo.
+     * @param owner Propietario del repositorio.
+     * @param name Nombre del repositorio.
+     * @param username Nombre de usuario del propietario del repositorio.
+     * @param page Número de página.
+     * @param perPage Cantidad de elementos por página.
+     * @returns Contenido del repositorio filtrado por tipo de archivo.
+     */
     async getFilteredRepositoryContent(owner: string, name: string, username: string, page: number = 1, perPage: number = 100): Promise<any> {
         const user_token = await this.user.getUserToken(username);
         const token = user_token || process.env.GITHUB_TOKEN;
@@ -118,6 +139,13 @@ export class RepositoriesService {
         }
     }
 
+    /**
+     * Obtiene el contenido de un archivo.
+     * @param owner Propietario del repositorio.
+     * @param repo Nombre del repositorio.
+     * @param file_sha SHA del archivo.
+     * @returns Contenido del archivo.
+     */
     private async getFileContent(owner: string, repo: string, file_sha: string): Promise<string> {
         const cacheKey = `${owner}:${repo}:${file_sha}`;
         let fileContent = this.cache.get(cacheKey);
@@ -135,6 +163,11 @@ export class RepositoriesService {
         return fileContent;
     }
 
+    /**
+     * Identifica el tipo de archivo.
+     * @param fileContent Contenido del archivo.
+     * @returns Tipo de archivo.
+     */
     identifyFileType(fileContent: string): string {
         const controllerPattern = /@Controller|\@GetMapping|\@PostMapping|\@DeleteMapping|\@PutMapping/;
         const servicePattern = /@Service|\@Injectable/;

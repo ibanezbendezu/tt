@@ -1,10 +1,7 @@
 import { Controller, Get, NotFoundException, Req, UseGuards } from "@nestjs/common";
 import { Request } from "express";
-
 import { AppService } from "./app.service";
 import { JwtAuthGuard } from "./auth/jwt/jwt-auth.guard";
-import { GithubOauthGuard } from "./auth/github/github-oauth.guard";
-import { ClustersService } from "./clusters/clusters.service";
 
 @Controller()
 export class AppController {

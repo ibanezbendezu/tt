@@ -3,6 +3,9 @@ import { PrismaService } from '../prisma/prisma.service';
 import { Octokit } from '@octokit/rest';
 import { UsersService } from '../users/users.service';
 
+/**
+ * Servicio que maneja todas las solicitudes relacionadas con los archivos.
+ */
 @Injectable()
 export class FilesService {
     private octokit: Octokit;
@@ -11,7 +14,7 @@ export class FilesService {
         private prisma: PrismaService,
         private user: UsersService) {
     }
-
+    
     async getFileContentById(id: number, username: string) {
         const user_token = await this.user.getUserToken(username);
         const token = user_token || process.env.GITHUB_TOKEN;
@@ -30,6 +33,12 @@ export class FilesService {
         return content;
     }
 
+    /**
+     * Obtiene el contenido de un archivo por su SHA.
+     * @param sha SHA del archivo.
+     * @param username Nombre de usuario del propietario del archivo.
+     * @returns Contenido del archivo.
+     */
     async getFileContentBySha(sha: string, username: string) {
         const user_token = await this.user.getUserToken(username);
         const token = user_token || process.env.GITHUB_TOKEN;
@@ -48,6 +57,13 @@ export class FilesService {
         return content;
     }
 
+    /**
+     * Función que obtiene el contenido de un archivo.
+     * @param owner Propietario del repositorio.
+     * @param repo Nombre del repositorio.
+     * @param file_sha SHA del archivo.
+     * @returns Contenido del archivo.
+     */
     private async getFileContent(owner: string, repo: string, file_sha: string) {
         const { data } = await this.octokit.git.getBlob({
             owner,

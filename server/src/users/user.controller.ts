@@ -1,8 +1,11 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, NotFoundException, Res, UseGuards, Headers } from "@nestjs/common";
+import { Controller, Get, Param, NotFoundException, Res, Headers } from "@nestjs/common";
 import { Response } from "express";
 import { UsersService } from "./users.service";
 import { JwtAuthService } from "src/auth/jwt/jwt-auth.service";
 
+/**
+ * Controlador que maneja todas las solicitudes relacionadas con los usuarios.
+ */
 @Controller("users")
 export class UserController {
     constructor(
@@ -23,6 +26,13 @@ export class UserController {
         return Userfound;
     }
 
+    /**
+     * Endpoint que obtiene el perfil de un usuario y sus repositorios.
+     * @param name Nombre del usuario.
+     * @param authorizationHeader Cabecera de autorización.
+     * @param res Respuesta.
+     * @returns Perfil del usuario y sus repositorios.
+     */
     @Get("profile/:name")
     async getUserProfileAndRepos(
         @Param("name") name: string,

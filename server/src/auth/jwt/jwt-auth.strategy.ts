@@ -7,6 +7,10 @@ import { ExtractJwt, Strategy } from "passport-jwt";
 import { AppConfig } from "../../config/interfaces";
 import { JwtPayload } from "../../shared";
 
+/**
+ * Clase que maneja la estrategia de autenticación JWT.
+ * Aquí, se configura la estrategia de autenticación de Passport.
+ */
 @Injectable()
 export class JwtAuthStrategy extends PassportStrategy(Strategy) {
     constructor(private configService: ConfigService<AppConfig>) {
@@ -20,6 +24,10 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy) {
         });
     }
 
+    /**
+     * Método que valida el payload del token JWT.
+     * @param payload
+     */
     async validate(payload: JwtPayload) {
         console.log(
             `${JwtAuthStrategy.name}#${this.validate.name}(): payload = ${JSON.stringify(

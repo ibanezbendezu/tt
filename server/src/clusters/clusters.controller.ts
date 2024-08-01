@@ -2,6 +2,9 @@ import { Controller, Get, Post, Body, Param, NotFoundException, Put } from "@nes
 import { ClustersService } from "./clusters.service";
 import { RepositoryDto as Repo } from "../comparisons/dto/repo";
 
+/**
+ * Controlador que maneja todas las solicitudes relacionadas con los clusters.
+ */
 @Controller("clusters")
 export class ClustersController {
 
@@ -20,6 +23,12 @@ export class ClustersController {
         return clusterFound;
     }
 
+    /**
+     * Endpoint que obtiene un cluster por su SHA.
+     * SHA es un hash único que identifica un cluster.
+     * @param sha
+     * @returns Cluster.
+    */
     @Get("/sha/:sha")
     async getClusterBySha(@Param("sha") sha: string) {
         const clusterFound = await this.clustersService.getClusterBySha(sha);
@@ -34,6 +43,12 @@ export class ClustersController {
         return files;
     }
 
+    /**
+     * Endpoint que obtiene los archivos de un cluster por su SHA.
+     * SHA es un hash único que identifica un cluster.
+     * @param sha
+     * @returns Archivos del cluster.
+     */
     @Get("/sha/:sha/files")
     async getFilesByClusterSha(@Param("sha") sha: string) {
         const files = await this.clustersService.getFilesByClusterSha(sha);
@@ -48,6 +63,12 @@ export class ClustersController {
         return similarities
     }
 
+    /**
+     * Endpoint que obtiene las similitudes de pares de un cluster por su SHA.
+     * SHA es un hash único que identifica un cluster.
+     * @param sha
+     * @returns Similitudes de pares del cluster.
+    */
     @Get("/sha/:sha/similarities")
     async getPairSimilaritiesByClusterSha(@Param("sha") sha: string) {
         const similarities = await this.clustersService.getPairSimilaritiesByClusterSha(sha);
@@ -70,6 +91,13 @@ export class ClustersController {
         return clusterUpdated;
     }
 
+    /**
+     * Endpoint que actualiza un cluster por su SHA.
+     * SHA es un hash único que identifica un cluster.
+     * @param sha
+     * @param body
+     * @returns Cluster actualizado
+     */
     @Put("/sha/:sha")
     async updateClusterBySha(@Param("sha") sha: string, @Body() body: { repos: Repo[], username: string }) {
         console.log("updateClusterBySha in server", body);

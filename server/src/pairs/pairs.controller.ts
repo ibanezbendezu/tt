@@ -1,8 +1,10 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, NotFoundException, Res, UseGuards, Headers } from "@nestjs/common";
+import { Controller, Get, Param, NotFoundException } from "@nestjs/common";
 import { PairsService } from './pairs.service';
 import { JwtAuthService } from "../auth/jwt/jwt-auth.service";
-import { Response } from "express";
 
+/**
+ * Controlador que maneja todas las solicitudes relacionadas con los pares.
+ */
 @Controller("pairs")
 export class PairsController {
     constructor(
@@ -20,6 +22,12 @@ export class PairsController {
         return pairFound;
     }
 
+    /**
+     * Endpoint que obtiene los pares de un cluster por su SHA.
+     * SHA es un hash único que identifica un cluster.
+     * @param sha SHA del cluster.
+     * @returns Pares del cluster.
+     */
     @Get("/sha/:sha/:fileSha")
     async getPairsByClusterSha(
         @Param("sha") sha: string,
