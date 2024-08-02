@@ -2,9 +2,7 @@
 
 import React, {useEffect, useState} from "react";
 import SyntaxHighlighter, {createElement} from "react-syntax-highlighter";
-import {cb} from "react-syntax-highlighter/dist/esm/styles/prism";
-import {stackoverflowLight} from "react-syntax-highlighter/dist/esm/styles/hljs";
-import {stackoverflowDark} from "react-syntax-highlighter/dist/esm/styles/hljs";
+import {stackoverflowLight, stackoverflowDark} from "react-syntax-highlighter/dist/esm/styles/hljs";
 import {Skeleton} from "./ui/skeleton";
 import {useTheme} from "next-themes";
 

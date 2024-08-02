@@ -35,6 +35,7 @@ export class FilesController {
      * Endpoint que obtiene el contenido de un archivo por su SHA.
      * SHA es un hash único que identifica un archivo.
      * @param sha
+     * @param authorizationHeader
      * @returns Contenido del archivo.
      */
     @Get("content/sha/:sha")

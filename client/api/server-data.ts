@@ -8,7 +8,7 @@ export const profileDataRequest = async (username: string) => {
         repos = repos.filter((repo: { language: string }) => repo.language === "Java");
         repos.sort((a: { created_at: string | number | Date; }, b: {
             created_at: string | number | Date;
-        }) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()); //descending, recent first
+        }) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
         return {userProfile, repos};
     } catch (error) {
@@ -70,6 +70,8 @@ export const clusterDeleteRequestBySha = async (sha: string) => {
     }
 }
 
+
+//FILES
 export const fileContentRequest = async (id: number) => {
     try {
         const res = await axios.get(`/files/content/${id}`);
@@ -90,6 +92,8 @@ export const fileContentRequestBySha = async (sha: string) => {
     }
 }
 
+
+//PAIRS
 export const pairSimilaritiesByClusterShaRequest = async (sha: string) => {
     try {
         const res = await axios.get(`/clusters/sha/${sha}/similarities`);
@@ -100,8 +104,6 @@ export const pairSimilaritiesByClusterShaRequest = async (sha: string) => {
     }
 }
 
-
-//PAIRS
 export const pairByIdDataRequest = async (id: number) => {
     try {
         const res = await axios.get(`/pairs/${id}`);

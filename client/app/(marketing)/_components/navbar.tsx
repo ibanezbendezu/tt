@@ -21,7 +21,7 @@ export const Navbar = () => {
             <div className="md:ml-auto md:justify-end justify-between w-full flex items-center gap-x-2">
                 <Button variant="ghost" size="sm" asChild>
                     <Link href="/login">
-                        Log in
+                        Inicia Sesión
                     </Link>
                 </Button>
                 <ModeToggle/>
